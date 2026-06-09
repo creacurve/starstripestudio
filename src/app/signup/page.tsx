@@ -47,8 +47,8 @@ export default function SignupPage() {
         </Link>
 
         <div className="border border-white/10 rounded-2xl p-8 bg-[#0d0d0d]">
-          <h1 className="text-2xl font-bold mb-1">Créer un compte</h1>
-          <p className="text-white/40 text-sm mb-6">10 crédits gratuits — sans carte bancaire</p>
+          <h1 className="text-2xl font-bold mb-1">Create account</h1>
+          <p className="text-white/40 text-sm mb-6">10 free credits — no card required</p>
 
           {/* Google Button */}
           <button
@@ -84,32 +84,32 @@ export default function SignupPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="text-xs text-white/40 mb-1.5 block uppercase tracking-wider">Nom complet</label>
+              <label className="text-xs text-white/40 mb-1.5 block uppercase tracking-wider">Full name</label>
               <input type="text" value={name} onChange={(e) => setName(e.target.value)} required
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-[#1a73e8]/60 transition-colors"
-                placeholder="Jean Dupont" />
+                placeholder="Jane Doe" />
             </div>
             <div>
               <label className="text-xs text-white/40 mb-1.5 block uppercase tracking-wider">Email</label>
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-[#1a73e8]/60 transition-colors"
-                placeholder="vous@example.com" />
+                placeholder="you@example.com" />
             </div>
             <div>
-              <label className="text-xs text-white/40 mb-1.5 block uppercase tracking-wider">Mot de passe</label>
+              <label className="text-xs text-white/40 mb-1.5 block uppercase tracking-wider">Password</label>
               <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8}
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-[#1a73e8]/60 transition-colors"
-                placeholder="Min. 8 caractères" />
+                placeholder="Min. 8 characters" />
             </div>
             <button type="submit" disabled={loading}
               className="w-full flex items-center justify-center gap-2 bg-[#1a73e8] hover:bg-[#1557b0] disabled:opacity-50 py-2.5 rounded-xl font-semibold text-sm transition-all">
-              {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Création…</> : "Commencer gratuitement"}
+              {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Creating…</> : "Start Free Now"}
             </button>
           </form>
 
           <p className="text-center text-sm text-white/30 mt-6">
-            Déjà un compte ?{" "}
-            <Link href="/login" className="text-[#1a73e8] hover:underline">Se connecter</Link>
+            Already have an account?{" "}
+            <Link href="/login" className="text-[#1a73e8] hover:underline">Sign in</Link>
           </p>
         </div>
       </div>

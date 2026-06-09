@@ -43,8 +43,8 @@ export default function LoginPage() {
         </Link>
 
         <div className="border border-white/10 rounded-2xl p-8 bg-[#0d0d0d]">
-          <h1 className="text-2xl font-bold mb-1">Connexion</h1>
-          <p className="text-white/40 text-sm mb-6">Bienvenue sur StarStripe Studio</p>
+          <h1 className="text-2xl font-bold mb-1">Sign in</h1>
+          <p className="text-white/40 text-sm mb-6">Welcome back to StarStripe Studio</p>
 
           {/* Google Button */}
           <button
@@ -83,23 +83,23 @@ export default function LoginPage() {
               <label className="text-xs text-white/40 mb-1.5 block uppercase tracking-wider">Email</label>
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-[#1a73e8]/60 transition-colors"
-                placeholder="vous@example.com" />
+                placeholder="you@example.com" />
             </div>
             <div>
-              <label className="text-xs text-white/40 mb-1.5 block uppercase tracking-wider">Mot de passe</label>
+              <label className="text-xs text-white/40 mb-1.5 block uppercase tracking-wider">Password</label>
               <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-[#1a73e8]/60 transition-colors"
                 placeholder="••••••••" />
             </div>
             <button type="submit" disabled={loading}
               className="w-full flex items-center justify-center gap-2 bg-[#1a73e8] hover:bg-[#1557b0] disabled:opacity-50 py-2.5 rounded-xl font-semibold text-sm transition-all">
-              {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Connexion…</> : "Se connecter"}
+              {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Signing in…</> : "Sign in"}
             </button>
           </form>
 
           <p className="text-center text-sm text-white/30 mt-6">
-            Pas de compte ?{" "}
-            <Link href="/signup" className="text-[#1a73e8] hover:underline">Créer un compte</Link>
+            No account?{" "}
+            <Link href="/signup" className="text-[#1a73e8] hover:underline">Sign up free</Link>
           </p>
         </div>
       </div>
