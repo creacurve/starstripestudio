@@ -1,7 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   // Skip if Supabase env vars not yet configured
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL?.startsWith('http')) {
     return NextResponse.next({ request })
