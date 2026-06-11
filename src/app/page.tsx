@@ -76,27 +76,75 @@ const FEATURES = [
   { icon: <Shield className="w-5 h-5 text-teal-400" />, title: "Private by default", desc: "Your generations are private unless you choose to share." },
 ];
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "WebApplication",
-  "name": "StarStripe Studio",
-  "url": "https://www.starstripestudio.com",
-  "description": "AI image and video generator using FLUX, Veo 3, Kling, and Runway. Pay per credit.",
-  "applicationCategory": "MultimediaApplication",
-  "operatingSystem": "Web",
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "USD",
-    "description": "10 free credits on signup"
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "StarStripe Studio",
+    "url": "https://www.starstripestudio.com",
+    "description": "AI image and video generator using FLUX, Veo 3, Kling, and Runway. Start free with 10 credits.",
+    "applicationCategory": "MultimediaApplication",
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD",
+      "description": "10 free credits on signup — no credit card required"
+    },
+    "featureList": ["AI Image Generation", "AI Video Generation", "FLUX", "Google Veo 3", "Kling", "Runway Gen-4"],
+    "screenshot": "https://www.starstripestudio.com/og-image.png",
   },
-  "featureList": ["AI Image Generation", "AI Video Generation", "FLUX", "Google Veo 3", "Kling", "Runway Gen-4"],
-};
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "StarStripe Studio",
+    "url": "https://www.starstripestudio.com",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://www.starstripestudio.com/generate/image?prompt={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "SiteNavigationElement",
+    "name": ["AI Image Generator", "AI Video Generator", "Pricing", "Sign Up Free"],
+    "url": [
+      "https://www.starstripestudio.com/generate/image",
+      "https://www.starstripestudio.com/generate/video",
+      "https://www.starstripestudio.com/pricing",
+      "https://www.starstripestudio.com/signup"
+    ]
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Is StarStripe Studio free?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes! You get 10 free credits on signup with no credit card required. Each credit generates one AI image or video." }
+      },
+      {
+        "@type": "Question",
+        "name": "What AI models does StarStripe Studio use?",
+        "acceptedAnswer": { "@type": "Answer", "text": "StarStripe Studio uses FLUX, Google Veo 3, Kling 1.6, Runway Gen-4, and MiniMax Video-01 for generating images and videos." }
+      },
+      {
+        "@type": "Question",
+        "name": "Do credits expire?",
+        "acceptedAnswer": { "@type": "Answer", "text": "No. Credits never expire. Buy once and use them whenever you want." }
+      }
+    ]
+  }
+];
 
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-black text-white">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      {jsonLd.map((schema, i) => (
+        <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
+      ))}
       <Navbar />
 
       {/* ══ HERO ══ */}

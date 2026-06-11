@@ -47,6 +47,9 @@ export const metadata: Metadata = {
     canonical: BASE_URL,
   },
   category: "technology",
+  verification: {
+    google: "eb4d245161085beb",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
