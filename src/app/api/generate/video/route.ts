@@ -55,21 +55,32 @@ export async function POST(req: NextRequest) {
       { input: { prompt, duration: inputDuration } }
     );
 
-    console.log("Replicate video output:", JSON.stringify(output));
-
-    let url: string | null = null;
-    if (typeof output === "string") {
-      url = output;
-    } else if (Array.isArray(output)) {
-      const first = output[0];
-      url = typeof first === "string" ? first : (first as { url?: () => string })?.url?.() ?? String(first);
-    } else if (output && typeof output === "object") {
-      const o = output as Record<string, unknown>;
-      url = (o.url as string) ?? (o.video as string) ?? (o.output as string) ?? null;
+    // Extract URL from any Replicate output format
+    function extractUrl(val: unknown): string | null {
+      if (!val) return null;
+      if (typeof val === "string") return val;
+      // FileOutput object (new Replicate SDK)
+      if (typeof val === "object" && val !== null) {
+        const o = val as Record<string, unknown>;
+        if (typeof o.url === "function") return String(o.url());
+        if (typeof o.url === "string") return o.url;
+        if (typeof o.video === "string") return o.video;
+        if (typeof o.output === "string") return o.output;
+      }
+      return null;
     }
 
+    let url: string | null = null;
+    if (Array.isArray(output)) {
+      url = extractUrl(output[0]);
+    } else {
+      url = extractUrl(output);
+    }
+
+    console.log("Replicate video output type:", typeof output, "url:", url);
+
     if (!url) {
-      return NextResponse.json({ error: `Generation failed — unexpected output: ${JSON.stringify(output)}` }, { status: 500 });
+      return NextResponse.json({ error: `No video URL in response — raw: ${JSON.stringify(output)}` }, { status: 500 });
     }
 
     await supabase.from("generations").insert({
