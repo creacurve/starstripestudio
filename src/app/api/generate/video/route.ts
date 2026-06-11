@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import Replicate from "replicate";
 
+export const maxDuration = 300;
+
 const COST_MAP: Record<string, number> = { "3": 5, "5": 10, "10": 15, "3s": 5, "5s": 10, "10s": 15 };
 
 const MODEL_MAP: Record<string, string> = {

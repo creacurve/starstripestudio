@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import Replicate from "replicate";
 
+export const maxDuration = 300;
+
 const IMAGE_COST = 1;
 
 const MODEL_MAP: Record<string, string> = {
