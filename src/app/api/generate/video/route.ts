@@ -55,10 +55,21 @@ export async function POST(req: NextRequest) {
       { input: { prompt, duration: inputDuration } }
     );
 
-    const url = typeof output === "string" ? output : (output as string[])?.[0];
+    console.log("Replicate video output:", JSON.stringify(output));
+
+    let url: string | null = null;
+    if (typeof output === "string") {
+      url = output;
+    } else if (Array.isArray(output)) {
+      const first = output[0];
+      url = typeof first === "string" ? first : (first as { url?: () => string })?.url?.() ?? String(first);
+    } else if (output && typeof output === "object") {
+      const o = output as Record<string, unknown>;
+      url = (o.url as string) ?? (o.video as string) ?? (o.output as string) ?? null;
+    }
 
     if (!url) {
-      return NextResponse.json({ error: "Generation failed — no output returned" }, { status: 500 });
+      return NextResponse.json({ error: `Generation failed — unexpected output: ${JSON.stringify(output)}` }, { status: 500 });
     }
 
     await supabase.from("generations").insert({
