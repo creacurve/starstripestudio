@@ -1,5 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { Download, Loader2, Wand2, ChevronDown } from "lucide-react";
 
 const STYLES = ["None", "Photorealistic", "Anime", "Digital Art", "Oil Painting", "Sketch", "Cinematic", "3D Render"];
@@ -11,14 +13,20 @@ const MODELS = [
   { id: "ideogram", label: "Ideogram 2.0", credits: 2 },
 ];
 
-export default function ImageGeneratePage() {
-  const [prompt, setPrompt] = useState("");
+function ImageGenerateInner() {
+  const searchParams = useSearchParams();
+  const [prompt, setPrompt] = useState(searchParams.get("prompt") ?? "");
   const [style, setStyle] = useState("None");
   const [ratio, setRatio] = useState("1:1");
   const [model, setModel] = useState("flux-schnell");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    const p = searchParams.get("prompt");
+    if (p) setPrompt(p);
+  }, [searchParams]);
 
   const selectedModel = MODELS.find((m) => m.id === model)!;
 
@@ -142,4 +150,8 @@ export default function ImageGeneratePage() {
         </div>
     </div>
   );
+}
+
+export default function ImageGeneratePage() {
+  return <Suspense><ImageGenerateInner /></Suspense>;
 }

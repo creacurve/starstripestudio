@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { Download, Loader2, Video, ChevronDown } from "lucide-react";
 
 const VIDEO_MODELS = [
@@ -11,8 +12,14 @@ const VIDEO_MODELS = [
 
 const DURATIONS = [{ label: "3 seconds", value: "3s", multiplier: 0.5 }, { label: "5 seconds", value: "5s", multiplier: 1 }, { label: "10 seconds", value: "10s", multiplier: 2 }];
 
-export default function VideoGeneratePage() {
-  const [prompt, setPrompt] = useState("");
+function VideoGenerateInner() {
+  const searchParams = useSearchParams();
+  const [prompt, setPrompt] = useState(searchParams.get("prompt") ?? "");
+
+  useEffect(() => {
+    const p = searchParams.get("prompt");
+    if (p) setPrompt(p);
+  }, [searchParams]);
   const [duration, setDuration] = useState("5s");
   const [model, setModel] = useState("kling");
   const [loading, setLoading] = useState(false);
@@ -131,4 +138,8 @@ export default function VideoGeneratePage() {
         </div>
     </div>
   );
+}
+
+export default function VideoGeneratePage() {
+  return <Suspense><VideoGenerateInner /></Suspense>;
 }
