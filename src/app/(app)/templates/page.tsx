@@ -1,7 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Search, Sparkles, ImageIcon, Video, TrendingUp, Flame, Star } from "lucide-react";
+import { Search, Sparkles, ImageIcon, Video, TrendingUp, Flame, Star, RefreshCw, Loader2 } from "lucide-react";
+
+type LivePrompt = { id: string; prompt: string; image: string; source: string };
 
 type Prompt = {
   id: number;
@@ -176,6 +178,22 @@ export default function TemplatesPage() {
   const router = useRouter();
   const [category, setCategory] = useState("All");
   const [query, setQuery] = useState("");
+  const [livePrompts, setLivePrompts] = useState<LivePrompt[]>([]);
+  const [liveLoading, setLiveLoading] = useState(true);
+  const [liveQuery, setLiveQuery] = useState("");
+
+  async function fetchLive() {
+    setLiveLoading(true);
+    try {
+      const res = await fetch("/api/trending-prompts");
+      const data = await res.json();
+      setLivePrompts(data.prompts ?? []);
+      setLiveQuery(data.query ?? "");
+    } catch {}
+    setLiveLoading(false);
+  }
+
+  useEffect(() => { fetchLive(); }, []);
 
   const filtered = PROMPTS.filter((t) => {
     const matchesCat = category === "All" || t.category === category;
@@ -208,6 +226,57 @@ export default function TemplatesPage() {
           />
         </div>
       </div>
+
+      {/* ── Live Trending from Lexica ── */}
+      <section className="mb-10">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+            <h2 className="text-white font-semibold text-sm">Live Trending</h2>
+            {liveQuery && <span className="text-white/30 text-xs">— {liveQuery}</span>}
+            <span className="text-[10px] bg-green-500/15 text-green-400 border border-green-500/25 px-2 py-0.5 rounded-full font-semibold">Updated hourly</span>
+          </div>
+          <button onClick={fetchLive} disabled={liveLoading}
+            className="flex items-center gap-1.5 text-xs text-white/40 hover:text-white transition-colors disabled:opacity-40">
+            <RefreshCw className={`w-3.5 h-3.5 ${liveLoading ? "animate-spin" : ""}`} /> Refresh
+          </button>
+        </div>
+
+        {liveLoading ? (
+          <div className="flex items-center gap-2 py-8 justify-center text-white/30">
+            <Loader2 className="w-5 h-5 animate-spin" />
+            <span className="text-sm">Fetching live prompts…</span>
+          </div>
+        ) : livePrompts.length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
+            {livePrompts.map((p) => (
+              <div key={p.id}
+                className="group relative border border-white/8 rounded-xl bg-[#0d0d0d] overflow-hidden cursor-pointer hover:border-[#1a73e8]/40 transition-all"
+                onClick={() => router.push(`/generate/image?prompt=${encodeURIComponent(p.prompt)}`)}>
+                <div className="aspect-square overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={p.image} alt={p.prompt}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                </div>
+                <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-2">
+                  <p className="text-white text-[10px] text-center leading-relaxed line-clamp-4 mb-2">"{p.prompt}"</p>
+                  <span className="flex items-center gap-1 bg-[#1a73e8] text-white text-[10px] font-bold px-2 py-1 rounded-lg">
+                    <Sparkles className="w-2.5 h-2.5" /> Use prompt
+                  </span>
+                </div>
+                <div className="absolute top-1.5 left-1.5">
+                  <span className="flex items-center gap-0.5 bg-green-500/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+                    <TrendingUp className="w-2 h-2" /> Live
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-white/30 text-sm py-4">Could not load live prompts — check your connection.</p>
+        )}
+      </section>
 
       {/* Category Filters */}
       <div className="flex gap-2 mb-8 flex-wrap">
