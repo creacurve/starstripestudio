@@ -1,9 +1,10 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Home, Compass, Clock, User, ImageIcon, Video, LayoutTemplate, Sparkles, PenTool } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { Home, Compass, Clock, User, ImageIcon, Video, LayoutTemplate, Sparkles, PenTool, LogOut } from "lucide-react";
 import { LogoFull } from "./Logo";
 import { cn } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/client";
 
 const MAIN_NAV = [
   { href: "/dashboard", label: "Home", icon: Home },
@@ -22,6 +23,13 @@ const TOOLS_NAV = [
 
 export default function DashboardSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  async function handleLogout() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/login");
+  }
 
   return (
     <aside className="w-[185px] min-h-screen flex flex-col border-r border-white/8 bg-black flex-shrink-0">
@@ -64,6 +72,16 @@ export default function DashboardSidebar() {
           </Link>
         ))}
       </nav>
+
+      <div className="px-2 py-3 border-t border-white/8">
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/40 hover:text-white hover:bg-white/5 transition-all w-full"
+        >
+          <LogOut className="w-4 h-4 flex-shrink-0" />
+          Log out
+        </button>
+      </div>
     </aside>
   );
 }
