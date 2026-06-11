@@ -46,9 +46,13 @@ export async function POST(req: NextRequest) {
     const replicateModel = MODEL_MAP[model] ?? MODEL_MAP["minimax"];
     const durationSeconds = parseInt(durationKey);
 
+    // Veo 3 only accepts 4, 6, or 8 — map to nearest valid value
+    const veoDuration = durationSeconds <= 4 ? 4 : durationSeconds <= 6 ? 6 : 8;
+    const inputDuration = model === "veo3" ? veoDuration : durationSeconds;
+
     const output = await replicate.run(
       replicateModel as `${string}/${string}`,
-      { input: { prompt, duration: durationSeconds } }
+      { input: { prompt, duration: inputDuration } }
     );
 
     const url = typeof output === "string" ? output : (output as string[])?.[0];
