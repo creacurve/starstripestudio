@@ -1,7 +1,14 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import { LogoMark } from "@/components/Logo";
 import LandingVideos from "@/components/LandingVideos";
+
+export const metadata: Metadata = {
+  title: "Free AI Image & Video Generator — FLUX, Veo 3, Kling, Runway",
+  description: "Turn text into stunning AI images and cinematic videos using FLUX, Google Veo 3, Kling 1.6, and Runway Gen-4. Start free with 10 credits — no subscription.",
+  alternates: { canonical: "https://www.starstripestudio.com" },
+};
 import {
   ArrowRight, ChevronRight, Check, Zap, Star,
   ImageIcon, Video, Wand2, Sparkles, PenTool,
@@ -69,9 +76,27 @@ const FEATURES = [
   { icon: <Shield className="w-5 h-5 text-teal-400" />, title: "Private by default", desc: "Your generations are private unless you choose to share." },
 ];
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "StarStripe Studio",
+  "url": "https://www.starstripestudio.com",
+  "description": "AI image and video generator using FLUX, Veo 3, Kling, and Runway. Pay per credit.",
+  "applicationCategory": "MultimediaApplication",
+  "operatingSystem": "Web",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD",
+    "description": "10 free credits on signup"
+  },
+  "featureList": ["AI Image Generation", "AI Video Generation", "FLUX", "Google Veo 3", "Kling", "Runway Gen-4"],
+};
+
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-black text-white">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <Navbar />
 
       {/* ══ HERO ══ */}
