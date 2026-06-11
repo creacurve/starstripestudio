@@ -2,59 +2,72 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import Replicate from "replicate";
 
-const COST_MAP: Record<string, number> = { "3s": 5, "5s": 10, "10s": 15 };
+const COST_MAP: Record<string, number> = { "3": 5, "5": 10, "10": 15, "3s": 5, "5s": 10, "10s": 15 };
+
+const MODEL_MAP: Record<string, string> = {
+  "veo3":    "google/veo-3",
+  "kling":   "klingai/kling-video-1.6-pro",
+  "runway":  "runway-ml/gen-4-turbo",
+  "minimax": "minimax/video-01",
+};
 
 export async function POST(req: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: "Unauthorized — please log in" }, { status: 401 });
 
-  const { prompt, duration, model } = await req.json();
-  if (!prompt?.trim()) return NextResponse.json({ error: "Prompt required" }, { status: 400 });
+    const body = await req.json();
+    const { prompt, duration = "5", model = "minimax" } = body;
 
-  const cost = COST_MAP[duration] ?? 10;
+    if (!prompt?.trim()) return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("credits")
-    .eq("id", user.id)
-    .single();
+    const durationKey = String(duration).replace("s", "");
+    const cost = COST_MAP[durationKey] ?? 10;
 
-  if (!profile || profile.credits < cost) {
-    return NextResponse.json({ error: "Insufficient credits" }, { status: 402 });
-  }
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("credits")
+      .eq("id", user.id)
+      .single();
 
-  await supabase
-    .from("profiles")
-    .update({ credits: profile.credits - cost })
-    .eq("id", user.id);
+    if (!profile || profile.credits < cost) {
+      return NextResponse.json({ error: "Not enough credits — buy more to continue" }, { status: 402 });
+    }
 
-  const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
+    await supabase
+      .from("profiles")
+      .update({ credits: profile.credits - cost })
+      .eq("id", user.id);
 
-  const durationSeconds = parseInt(duration);
-  let output: unknown;
+    const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
+    const replicateModel = MODEL_MAP[model] ?? MODEL_MAP["minimax"];
+    const durationSeconds = parseInt(durationKey);
 
-  if (model === "runway") {
-    output = await replicate.run(
-      "minimax/video-01",
+    const output = await replicate.run(
+      replicateModel as `${string}/${string}`,
       { input: { prompt, duration: durationSeconds } }
     );
-  } else {
-    output = await replicate.run(
-      "klingai/kling-video",
-      { input: { prompt, duration: durationSeconds } }
-    );
+
+    const url = typeof output === "string" ? output : (output as string[])?.[0];
+
+    if (!url) {
+      return NextResponse.json({ error: "Generation failed — no output returned" }, { status: 500 });
+    }
+
+    await supabase.from("generations").insert({
+      user_id: user.id,
+      type: "video",
+      prompt,
+      output_url: String(url),
+      credits_used: cost,
+    });
+
+    return NextResponse.json({ url: String(url) });
+
+  } catch (err: unknown) {
+    console.error("Video generation error:", err);
+    const message = err instanceof Error ? err.message : "Server error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
-
-  const url = typeof output === "string" ? output : (output as string[])[0];
-
-  await supabase.from("generations").insert({
-    user_id: user.id,
-    type: "video",
-    prompt,
-    output_url: url,
-    credits_used: cost,
-  });
-
-  return NextResponse.json({ url });
 }
