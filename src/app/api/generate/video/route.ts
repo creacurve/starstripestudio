@@ -8,8 +8,8 @@ const COST_MAP: Record<string, number> = { "3": 5, "5": 10, "10": 15, "3s": 5, "
 
 const MODEL_MAP: Record<string, string> = {
   "veo3":    "google/veo-3",
-  "kling":   "klingai/kling-video-1.6-pro",
-  "runway":  "runway-ml/gen-4-turbo",
+  "kling":   "kwaivgi/kling-v1.6-pro",
+  "runway":  "runwayml/gen4-turbo",
   "minimax": "minimax/video-01",
 };
 
