@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import { LogoMark } from "@/components/Logo";
-import { createClient } from "@/lib/supabase/server";
 import {
   ArrowRight, ChevronRight, Check, Zap, Star,
   ImageIcon, Video, Wand2, Sparkles, PenTool,
@@ -69,19 +68,8 @@ const FEATURES = [
   { icon: <Shield className="w-5 h-5 text-teal-400" />, title: "Private by default", desc: "Your generations are private unless you choose to share." },
 ];
 
-export default async function HomePage() {
-  let realVideos: { output_url: string; prompt: string }[] = [];
-  try {
-    const supabase = await createClient();
-    const { data } = await supabase
-      .from("generations")
-      .select("output_url, prompt")
-      .eq("type", "video")
-      .not("output_url", "is", null)
-      .order("created_at", { ascending: false })
-      .limit(6);
-    realVideos = data ?? [];
-  } catch {}
+export default function HomePage() {
+  const realVideos: { output_url: string; prompt: string }[] = [];
 
   return (
     <div className="min-h-screen bg-black text-white">
