@@ -1,14 +1,55 @@
 "use client";
-import { useState } from "react";
-import { User, CreditCard, Trash2, Save, Shield, Bell } from "lucide-react";
+import { useState, useEffect } from "react";
+import { User, CreditCard, Trash2, Save, Shield, Bell, Loader2 } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import Link from "next/link";
 
 export default function SettingsPage() {
-  const [displayName, setDisplayName] = useState("Alex Johnson");
+  const [displayName, setDisplayName] = useState("");
+  const [email, setEmail] = useState("");
+  const [credits, setCredits] = useState<number | null>(null);
+  const [initials, setInitials] = useState("?");
   const [saved, setSaved] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState("");
 
-  function handleSave() {
+  useEffect(() => {
+    async function load() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      setUserId(user.id);
+      const name = user.user_metadata?.full_name || user.email?.split("@")[0] || "";
+      setDisplayName(name);
+      setEmail(user.email || "");
+      setInitials(name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2) || "?");
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("credits")
+        .eq("id", user.id)
+        .single();
+
+      setCredits(profile?.credits ?? 0);
+      setLoading(false);
+    }
+    load();
+  }, []);
+
+  async function handleSave() {
+    const supabase = createClient();
+    await supabase.auth.updateUser({ data: { full_name: displayName } });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="w-6 h-6 animate-spin text-white/30" />
+      </div>
+    );
   }
 
   return (
@@ -25,10 +66,9 @@ export default function SettingsPage() {
           <h2 className="text-sm font-semibold text-white uppercase tracking-wider">Profile</h2>
         </div>
 
-        {/* Avatar */}
         <div className="flex items-center gap-5 mb-6">
           <div className="w-16 h-16 rounded-2xl bg-[#1a73e8]/20 border border-[#1a73e8]/30 flex items-center justify-center flex-shrink-0">
-            <span className="text-[#1a73e8] text-xl font-bold">AJ</span>
+            <span className="text-[#1a73e8] text-xl font-bold">{initials}</span>
           </div>
           <div>
             <p className="text-white text-sm font-medium mb-1">Profile Picture</p>
@@ -53,7 +93,7 @@ export default function SettingsPage() {
             <label className="block text-white/50 text-xs mb-1.5">Email Address</label>
             <input
               type="email"
-              defaultValue="alex.johnson@example.com"
+              value={email}
               readOnly
               className="w-full bg-white/5 border border-white/8 rounded-xl px-4 py-2.5 text-white/50 text-sm outline-none cursor-not-allowed"
             />
@@ -64,9 +104,7 @@ export default function SettingsPage() {
         <button
           onClick={handleSave}
           className={`mt-5 flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${
-            saved
-              ? "bg-green-600 text-white"
-              : "bg-[#1a73e8] hover:bg-[#1557b0] text-white"
+            saved ? "bg-green-600 text-white" : "bg-[#1a73e8] hover:bg-[#1557b0] text-white"
           }`}
         >
           <Save className="w-4 h-4" />
@@ -74,7 +112,7 @@ export default function SettingsPage() {
         </button>
       </section>
 
-      {/* Account / Plan Section */}
+      {/* Account / Credits Section */}
       <section className="border border-white/8 rounded-2xl bg-[#0d0d0d] p-6 mb-5">
         <div className="flex items-center gap-3 mb-6">
           <CreditCard className="w-4 h-4 text-[#1a73e8]" />
@@ -83,33 +121,18 @@ export default function SettingsPage() {
 
         <div className="flex items-center justify-between mb-5 pb-5 border-b border-white/8">
           <div>
-            <p className="text-white text-sm font-medium mb-0.5">Current Plan</p>
-            <p className="text-white/40 text-xs">Billed monthly</p>
-          </div>
-          <span className="bg-[#1a73e8]/15 border border-[#1a73e8]/30 text-[#1a73e8] text-xs font-semibold px-3 py-1 rounded-full">
-            Free
-          </span>
-        </div>
-
-        <div className="flex items-center justify-between mb-6">
-          <div>
             <p className="text-white text-sm font-medium mb-0.5">Credits Remaining</p>
-            <p className="text-white/40 text-xs">Resets on Jul 1, 2026</p>
+            <p className="text-white/40 text-xs">One-time credit balance</p>
           </div>
           <div className="text-right">
-            <p className="text-white text-lg font-bold">25</p>
-            <p className="text-white/40 text-xs">of 50 monthly</p>
+            <p className="text-white text-2xl font-bold">{credits?.toLocaleString()}</p>
+            <p className="text-white/40 text-xs">credits</p>
           </div>
         </div>
 
-        {/* Credit bar */}
-        <div className="w-full h-1.5 bg-white/8 rounded-full mb-6">
-          <div className="h-full bg-[#1a73e8] rounded-full" style={{ width: "50%" }} />
-        </div>
-
-        <button className="w-full bg-white/5 hover:bg-white/8 border border-white/8 text-white text-sm font-medium py-2.5 rounded-xl transition-colors">
-          Upgrade to Pro — $19/mo
-        </button>
+        <Link href="/pricing" className="block w-full text-center bg-[#1a73e8] hover:bg-[#1557b0] text-white text-sm font-medium py-2.5 rounded-xl transition-colors">
+          Buy more credits
+        </Link>
       </section>
 
       {/* Notifications */}
