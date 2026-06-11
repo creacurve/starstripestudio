@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import { LogoMark } from "@/components/Logo";
+import LandingVideos from "@/components/LandingVideos";
 import {
   ArrowRight, ChevronRight, Check, Zap, Star,
   ImageIcon, Video, Wand2, Sparkles, PenTool,
@@ -69,8 +70,6 @@ const FEATURES = [
 ];
 
 export default function HomePage() {
-  const realVideos: { output_url: string; prompt: string }[] = [];
-
   return (
     <div className="min-h-screen bg-black text-white">
       <Navbar />
@@ -155,53 +154,7 @@ export default function HomePage() {
             Make your own <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {realVideos.length > 0 ? realVideos.map((v, i) => (
-            <div key={i} className="group relative rounded-2xl overflow-hidden border border-white/8 bg-[#0d0d0d] hover:border-white/20 transition-all">
-              <div className="relative aspect-video overflow-hidden bg-black">
-                <video
-                  src={v.output_url}
-                  className="w-full h-full object-cover"
-                  loop muted playsInline
-                  onMouseEnter={e => (e.currentTarget as HTMLVideoElement).play()}
-                  onMouseLeave={e => { const el = e.currentTarget as HTMLVideoElement; el.pause(); el.currentTime = 0; }}
-                />
-                <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-100 group-hover:opacity-0 transition-opacity pointer-events-none">
-                  <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur border border-white/30 flex items-center justify-center">
-                    <svg className="w-5 h-5 text-white ml-0.5" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                  </div>
-                </div>
-              </div>
-              <div className="p-4">
-                <p className="text-xs text-white/60 leading-relaxed line-clamp-2">"{v.prompt}"</p>
-              </div>
-            </div>
-          )) : VIDEO_EXAMPLES.map((v) => (
-            <div key={v.prompt} className="group relative rounded-2xl overflow-hidden border border-white/8 bg-[#0d0d0d] hover:border-white/20 transition-all">
-              <div className="relative aspect-video overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={v.img} alt={v.prompt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur border border-white/30 flex items-center justify-center">
-                    <svg className="w-5 h-5 text-white ml-0.5" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                  </div>
-                </div>
-                <div className="absolute top-2.5 right-2.5 bg-black/70 backdrop-blur text-white text-[10px] font-bold px-2 py-0.5 rounded">{v.duration}</div>
-              </div>
-              <div className="p-4">
-                <p className="text-xs text-white/60 leading-relaxed mb-2 line-clamp-2">"{v.prompt}"</p>
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] bg-[#1a73e8]/15 text-[#1a73e8] border border-[#1a73e8]/25 px-2 py-0.5 rounded-full font-semibold">{v.model}</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="mt-6 text-center">
-          <Link href="/generate/video" className="btn-blue px-8 py-3 rounded-full inline-flex items-center gap-2">
-            <Video className="w-4 h-4" /> Generate your video
-          </Link>
-        </div>
+        <LandingVideos />
       </section>
 
       {/* ══ VIDEO MODELS ══ */}
